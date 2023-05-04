@@ -16,7 +16,7 @@
 
 	
 	/ ＲＯＣＬＯＴＨＥＳ
-	Version - 0.6
+	Version - 0.6.1
 	Link - discord.gg/HBzvWE6Rp3
 	
 	| RoClothes Is Exploiting Script, Allowing Player To Have Nude BodyParts/Clothes
@@ -281,12 +281,23 @@ function RoClothes(Player)
 	GUIObject.PropertyListFrame = Instance.new("ScrollingFrame")
 	GUIObject.UIGridLayout_4 = Instance.new("UIGridLayout")
 	GUIObject.EditNote = Instance.new("TextLabel")
-
 	GUIObject.CharacterPreviewFrame = Instance.new("Frame")
 	GUIObject.ViewportFrame = Instance.new("ViewportFrame")
 	GUIObject.ViewportCamera = Instance.new("Camera")
 	GUIObject.PreviewUIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 	GUIObject.PreviewButton = Instance.new("TextButton")
+	GUIObject.ClickExecuteFrame = Instance.new("Frame")
+	GUIObject.UIGradientCE = Instance.new("UIGradient")
+	GUIObject.UICornerCE = Instance.new("UICorner")
+	GUIObject.ClickExecuteButton = Instance.new("TextButton")
+	GUIObject.PositionPhysicsMultiplyFrame = Instance.new("Frame")
+	GUIObject.UICornerPPM = Instance.new("UICorner")
+	GUIObject.PositionPhysicsMultiplyText = Instance.new("TextBox")
+	GUIObject.UIGradientPPM = Instance.new("UIGradient")
+	GUIObject.RotationPhysicsMultiplyFrame = Instance.new("Frame")
+	GUIObject.UICornerRPM = Instance.new("UICorner")
+	GUIObject.RotationPhysicsMultiplyText = Instance.new("TextBox")
+	GUIObject.UIGradientRPM = Instance.new("UIGradient")
 
 	local Mouse = Player:GetMouse()
 
@@ -302,13 +313,15 @@ function RoClothes(Player)
 	local TS = game:GetService("TweenService")
 	local MPS = game:GetService("MarketplaceService")
 
-	local CVersion = "0.6"
+	local CVersion = "0.6.1"
 
 	local Method = 1
 	local MaxMethod = 2
 
 	local KEYBIND = Enum.KeyCode.Insert
 	local KeybindDetect = false
+	
+	local ClickExecute = false
 
 	local IsEnterFrame = false
 	local IsMouseDown = false
@@ -317,6 +330,7 @@ function RoClothes(Player)
 	local MouseDownStart = nil
 
 	local AllConnect = {}
+	local MeshEditConnect = {}
 
 	local SelectPlayer = Player.Name
 
@@ -328,6 +342,9 @@ function RoClothes(Player)
 	local PreviewRadius = 5
 	local PreviewRotateSpeed = 200
 	local CharacterPreviewLoading = false
+	
+	local PositionPhysicsMultiply = 1
+	local RotationPhysicsMultiply = 4
 
 	local Function = {Spring = {}}
 
@@ -377,7 +394,6 @@ function RoClothes(Player)
 			}
 		}
 	end
-
 
 	--[[
 	--------------------------------------------------------------------------------------------------------------
@@ -4657,6 +4673,10 @@ function RoClothes(Player)
 		}
 	end
 
+	local PlayerData = {
+		[Player.Name] = Function.PlayerDataDefault()
+	}
+	
 	local DummyMesh = {
 		["Head"] = {
 			Size = Vector3.new(2, 1, 1),
@@ -4691,10 +4711,6 @@ function RoClothes(Player)
 		"MeshBasePartTransparency",
 		"Color",
 		"Reflectance",
-	}
-
-	local PlayerData = {
-		[Player.Name] = Function.PlayerDataDefault()
 	}
 
 	local Method2BodyPart = {
@@ -6547,93 +6563,95 @@ function RoClothes(Player)
 
 		local BodyPart = Character:FindFirstChild(PARENT[1])
 
-		local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(BodyPart.Size, BodyPartSize[PARENT[1]])
+		if BodyPart then
+			local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(BodyPart.Size, BodyPartSize[PARENT[1]])
 
-		local ObjectInstance
+			local ObjectInstance
 
-		local Parent = Character
+			local Parent = Character
 
-		for Index = 1, #PARENT do
-			Parent = Parent:FindFirstChild(PARENT[Index])
-		end
+			for Index = 1, #PARENT do
+				Parent = Parent:FindFirstChild(PARENT[Index])
+			end
 
-		if PARENTTRANSPARENCY ~= nil then
-			PlayerData[Data].CurrentPartList.ParentTransparency[Parent] = {D = Parent.Transparency, T = PARENTTRANSPARENCY}
-			Parent.Transparency = PARENTTRANSPARENCY
-		end
+			if PARENTTRANSPARENCY ~= nil then
+				PlayerData[Data].CurrentPartList.ParentTransparency[Parent] = {D = Parent.Transparency, T = PARENTTRANSPARENCY}
+				Parent.Transparency = PARENTTRANSPARENCY
+			end
 
-		if INSTANCE == "Mesh" then
-			ObjectInstance = IS:CreateMeshPartAsync(MESHID, Enum.CollisionFidelity.Box, Enum.RenderFidelity.Performance)
+			if INSTANCE == "Mesh" then
+				ObjectInstance = IS:CreateMeshPartAsync(MESHID, Enum.CollisionFidelity.Box, Enum.RenderFidelity.Performance)
 
-			ObjectInstance.TextureID = TEXTUREID
-			ObjectInstance.DoubleSided = DOUBLESIDED
-		elseif INSTANCE == "Part" then
-			ObjectInstance = Instance.new("Part")
-			ObjectInstance.Shape = SHAPE
-		end
+				ObjectInstance.TextureID = TEXTUREID
+				ObjectInstance.DoubleSided = DOUBLESIDED
+			elseif INSTANCE == "Part" then
+				ObjectInstance = Instance.new("Part")
+				ObjectInstance.Shape = SHAPE
+			end
 
-		local Color
+			local Color
 
-		if COLOR["Color"] == "Parent" then
-			Color = Parent.Color
-		else
-			Color = COLOR["Color"]
-		end
+			if COLOR["Color"] == "Parent" then
+				Color = Parent.Color
+			else
+				Color = COLOR["Color"]
+			end
 
-		local H,S,V = Color:ToHSV()
+			local H,S,V = Color:ToHSV()
 
-		if COLOR["Tone"] == "Darker" then
-			Color = Color3.fromHSV(H,S,V+(-DarkerColorPercentage * V/100))
-		elseif COLOR["Tone"] == "Darker2" then
-			Color = Color3.fromHSV(H,S,V+(-Darker2ColorPercentage * V/100))
-		end
+			if COLOR["Tone"] == "Darker" then
+				Color = Color3.fromHSV(H,S,V+(-DarkerColorPercentage * V/100))
+			elseif COLOR["Tone"] == "Darker2" then
+				Color = Color3.fromHSV(H,S,V+(-Darker2ColorPercentage * V/100))
+			end
 
-		if PlayerData[Data].MeshBasePartInvisible then
-			ObjectInstance.Transparency = MESHBASEPARTTRANSPARENCY
-		end
+			if PlayerData[Data].MeshBasePartInvisible then
+				ObjectInstance.Transparency = MESHBASEPARTTRANSPARENCY
+			end
 
-		ObjectInstance.Color = Color
+			ObjectInstance.Color = Color
 
-		ObjectInstance.CanCollide = false
-		ObjectInstance.CanQuery = false
-		ObjectInstance.CanTouch = false
-		ObjectInstance.Massless = true
+			ObjectInstance.CanCollide = false
+			ObjectInstance.CanQuery = false
+			ObjectInstance.CanTouch = false
+			ObjectInstance.Massless = true
 
-		ObjectInstance.Name = NAME
-		ObjectInstance.Transparency = TRANSPARENCY
-		ObjectInstance.Reflectance = REFLECTANCE
-		ObjectInstance.Material = MATERIAL
+			ObjectInstance.Name = NAME
+			ObjectInstance.Transparency = TRANSPARENCY
+			ObjectInstance.Reflectance = REFLECTANCE
+			ObjectInstance.Material = MATERIAL
 
-		local WeldInstance = Instance.new("Weld", ObjectInstance)
-		WeldInstance.Name = NAME.." Weld"
-		WeldInstance.Part0 = Parent
-		WeldInstance.Part1 = ObjectInstance
+			local WeldInstance = Instance.new("Weld", ObjectInstance)
+			WeldInstance.Name = NAME.." Weld"
+			WeldInstance.Part0 = Parent
+			WeldInstance.Part1 = ObjectInstance
 
-		if PlayerData[Data].MeshSizeLock == false then
-			ObjectInstance.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
-			WeldInstance.C0 = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
-			WeldInstance.C1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
-		else
-			ObjectInstance.Size = SIZE
-			WeldInstance.C0 = CFRAME
-			WeldInstance.C1 = CFRAME1
-		end
+			if PlayerData[Data].MeshSizeLock == false then
+				ObjectInstance.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
+				WeldInstance.C0 = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
+				WeldInstance.C1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
+			else
+				ObjectInstance.Size = SIZE
+				WeldInstance.C0 = CFRAME
+				WeldInstance.C1 = CFRAME1
+			end
 
-		ObjectInstance.Parent = Parent
+			ObjectInstance.Parent = Parent
 
-		if FUNCTION ~= "" then
-			if typeof(FUNCTION) == "string" then
-				Function[FUNCTION](ObjectInstance, Character, Extra, Data)
-			elseif typeof(FUNCTION) == "table" then
-				for i, v in pairs(FUNCTION) do
-					Function[v](ObjectInstance, Character, Extra, Data)
+			if FUNCTION ~= "" then
+				if typeof(FUNCTION) == "string" then
+					Function[FUNCTION](ObjectInstance, Character, Extra, Data)
+				elseif typeof(FUNCTION) == "table" then
+					for i, v in pairs(FUNCTION) do
+						Function[v](ObjectInstance, Character, Extra, Data)
+					end
 				end
 			end
+
+			PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[ObjectInstance] = {Size = SIZE, CFrame = CFRAME, CFrame1 = CFRAME1, Base = BodyPart, Weld = WeldInstance}
+
+			return ObjectInstance
 		end
-
-		PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[ObjectInstance] = {Size = SIZE, CFrame = CFRAME, CFrame1 = CFRAME1, Base = BodyPart, Weld = WeldInstance}
-
-		return ObjectInstance
 	end
 
 	function Function.CharacterFunction(Character, Data)
@@ -6696,41 +6714,44 @@ function RoClothes(Player)
 		PlayerData[Data].CurrentPartList["Accessory"][CAccessory.Name] = CAccessory
 
 		local CParentAttachment = CharacterAttachment[CAttachment.Name]
-		local HandleParent = CParentAttachment.Parent
-		local Size = HandleParent.Size
-		local HandleSize = CHandle.Size
 
-		local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Size, BodyPartSize[HandleParent.Name])
+		if CParentAttachment then
+			local HandleParent = CParentAttachment.Parent
+			local Size = HandleParent.Size
+			local HandleSize = CHandle.Size
 
-		local CAttachCF = CAttachment.CFrame
-		local PAttachCF = AttachmentCFrame[CParentAttachment.Name]
-		local Scale = CSpecialMesh.Scale
+			local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Size, BodyPartSize[HandleParent.Name])
 
-		if PlayerData[Data].AccessorySizeLock == false then
-			CHandle.Size = Vector3.new(HandleSize.X * XMultiply, HandleSize.Y * YMultiply, HandleSize.Z * ZMultiply)
-			CSpecialMesh.Scale = Vector3.new(Scale.X * XMultiply, Scale.Y * YMultiply, Scale.Z * ZMultiply)CAttachment.CFrame = CFrame.new(CAttachCF.Position.X * XMultiply, CAttachCF.Position.Y * YMultiply, CAttachCF.Position.Z * ZMultiply) * CAttachCF.Rotation
-			CParentAttachment.CFrame = CFrame.new(PAttachCF.Position.X * XMultiply, PAttachCF.Position.Y * YMultiply, PAttachCF.Position.Z * ZMultiply) * PAttachCF.Rotation
-		else
-			CHandle.Size = HandleSize
-			CSpecialMesh.Scale = Scale
+			local CAttachCF = CAttachment.CFrame
+			local PAttachCF = AttachmentCFrame[CParentAttachment.Name]
+			local Scale = CSpecialMesh.Scale
+
+			if PlayerData[Data].AccessorySizeLock == false then
+				CHandle.Size = Vector3.new(HandleSize.X * XMultiply, HandleSize.Y * YMultiply, HandleSize.Z * ZMultiply)
+				CSpecialMesh.Scale = Vector3.new(Scale.X * XMultiply, Scale.Y * YMultiply, Scale.Z * ZMultiply)CAttachment.CFrame = CFrame.new(CAttachCF.Position.X * XMultiply, CAttachCF.Position.Y * YMultiply, CAttachCF.Position.Z * ZMultiply) * CAttachCF.Rotation
+				CParentAttachment.CFrame = CFrame.new(PAttachCF.Position.X * XMultiply, PAttachCF.Position.Y * YMultiply, PAttachCF.Position.Z * ZMultiply) * PAttachCF.Rotation
+			else
+				CHandle.Size = HandleSize
+				CSpecialMesh.Scale = Scale
+			end
+
+			CHandle.CanCollide = false
+			CHandle.CanQuery = false
+			CHandle.CanTouch = false
+			CHandle.Massless = true
+
+			CAccessory.Parent = Character
+			v:Destroy()
+
+			local Weld = Instance.new("Weld", CHandle)
+			Weld.Part0 = CHandle
+			Weld.Part1 = CParentAttachment.Parent
+
+			Weld.C0 = CAttachment.CFrame
+			Weld.C1 = CParentAttachment.CFrame
+
+			PlayerData[Data].CurrentPartList.RealtimeUpdateList.Accessory[CHandle] = {Scale = Scale, SpecialMesh = CSpecialMesh, Size = Size, CFrame = CAttachCF, Attachment = CAttachment, ParentAttachment = CParentAttachment, Base = HandleParent, Weld = Weld}
 		end
-
-		CHandle.CanCollide = false
-		CHandle.CanQuery = false
-		CHandle.CanTouch = false
-		CHandle.Massless = true
-
-		CAccessory.Parent = Character
-		v:Destroy()
-
-		local Weld = Instance.new("Weld", CHandle)
-		Weld.Part0 = CHandle
-		Weld.Part1 = CParentAttachment.Parent
-
-		Weld.C0 = CAttachment.CFrame
-		Weld.C1 = CParentAttachment.CFrame
-
-		PlayerData[Data].CurrentPartList.RealtimeUpdateList.Accessory[CHandle] = {Scale = Scale, SpecialMesh = CSpecialMesh, Size = Size, CFrame = CAttachCF, Attachment = CAttachment, ParentAttachment = CParentAttachment, Base = HandleParent, Weld = Weld}
 	end
 
 	function Function.HumanoidDescriptionSet(AccessoryList, ClothesList, HumanoidDescription)
@@ -7190,8 +7211,6 @@ function RoClothes(Player)
 		end
 	end
 
-	local MeshEditConnect = {}
-
 	function Function.MeshEditButton(Name)
 		for _, v in pairs(GUIObject.PropertyListFrame:GetChildren()) do
 			if v:IsA(("Frame")) then
@@ -7207,41 +7226,145 @@ function RoClothes(Player)
 
 		local PlayerPartList = PlayerData[SelectPlayer]["PartList"]
 		local MeshDetail = PlayerPartList[Name]
-
-		setmetatable(MeshDetail, MetaClothes)
-
+		
 		if MeshDetail then
-			for _, PropertyName in pairs(EditableProperty) do
-				local Value = MeshDetail[PropertyName]
-				local Button = Function.ButtonCreate(PropertyName, GUIObject.PropertyListFrame, true, {Color = Color3.fromRGB(93, 93, 93), Text = PropertyName})
-				local Textbox = Button:FindFirstChildOfClass("TextBox")
+			setmetatable(MeshDetail, MetaClothes)
 
-				Textbox.Text = tostring(Value)
+			if MeshDetail then
+				for _, PropertyName in pairs(EditableProperty) do
+					local Value = MeshDetail[PropertyName]
+					local Button = Function.ButtonCreate(PropertyName, GUIObject.PropertyListFrame, true, {Color = Color3.fromRGB(93, 93, 93), Text = PropertyName})
+					local Textbox = Button:FindFirstChildOfClass("TextBox")
 
-				if PropertyName == "Color" then
-					Textbox.TextColor3 = Value.Color
-					Textbox.TextStrokeTransparency = 0
-					Textbox.TextStrokeColor3 = Color3.new(1,1,1)
-				end
-
-				local TextboxConnect = Textbox.FocusLost:Connect(function()
-					if PropertyName == "Size" then
-						PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Function.StringTo(Textbox.Text, "Vector3")
-					elseif PropertyName == "TextureId" then
-						PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Textbox.Text
-					elseif PropertyName == "Color" then
-						local RGB = Function.StringTo(Textbox.Text, "RGB")
-
-						PlayerData[SelectPlayer]["PartList"][Name][PropertyName].Color = RGB
-						Textbox.TextColor3 = RGB
+					if PropertyName == "Color" then
+						Textbox.Text = tostring(Value.Color)
+						Textbox.TextColor3 = Value.Color
+						Textbox.TextStrokeTransparency = 0
+						Textbox.TextStrokeColor3 = Color3.new(1,1,1)
 					else
-						PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = tonumber(Textbox.Text)
+						Textbox.Text = tostring(Value)
 					end
-				end)
 
-				table.insert(MeshEditConnect, MeshEditConnect)
-				table.insert(AllConnect, MeshEditConnect)
+					local TextboxConnect = Textbox.FocusLost:Connect(function()
+						if PropertyName == "Size" then
+							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Function.StringTo(Textbox.Text, "Vector3")
+						elseif PropertyName == "TextureId" then
+							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = Textbox.Text
+						elseif PropertyName == "Color" then
+							local RGB = Function.StringTo(Textbox.Text, "RGB")
+
+							PlayerData[SelectPlayer]["PartList"][Name][PropertyName].Color = RGB
+							Textbox.TextColor3 = RGB
+						else
+							PlayerData[SelectPlayer]["PartList"][Name][PropertyName] = tonumber(Textbox.Text)
+						end
+					end)
+
+					table.insert(MeshEditConnect, MeshEditConnect)
+					table.insert(AllConnect, MeshEditConnect)
+				end
 			end
+		end
+	end
+
+	function Function.DragUpdate()
+		if IsEnterFrame == true and IsMouseDown == true and MouseDownStart and GuiPositionStart then
+			local CurrentPosition = UIS:GetMouseLocation() - MouseDownStart
+			local ToChangePosition = UDim2.new(GuiPositionStart.X.Scale, GuiPositionStart.X.Offset + CurrentPosition.X, GuiPositionStart.Y.Scale, GuiPositionStart.Y.Offset + CurrentPosition.Y)
+
+			GUIObject.MainFrame.Position = GUIObject.MainFrame.Position:Lerp(ToChangePosition, 0.5)
+		end
+	end
+	
+	function Function.IsCharacter(Part)
+		return Part:FindFirstChild("Torso") or Part:FindFirstChild("Head") or Part:FindFirstChild("Right Arm") or Part:FindFirstChild("Left Arm") or Part:FindFirstChild("Right Leg") or Part:FindFirstChild("Left Leg")
+	end
+	
+	function Function.GUIUpdate()
+		for i, v in pairs(GUIObject.ClothesButtonFrame:GetChildren()) do
+			if v:IsA("Frame") then
+				if table.find(PlayerData[SelectPlayer].CurrentClothes, v.Name) then
+					v.BackgroundColor3 = Color3.fromRGB(255, 242, 67)
+				else
+					v.BackgroundColor3 = Color3.fromRGB(6, 0, 76)
+				end 
+			end
+		end
+
+		if PlayerData[SelectPlayer].AutoExecute then
+			GUIObject.AutoExecuteButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.AutoExecuteButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].BundleBodyColor then
+			GUIObject.BundleBodyColorButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.BundleBodyColorButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].Face then
+			GUIObject.FaceButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.FaceButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].MeshSizeLock then
+			GUIObject.MeshSizeLockButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.MeshSizeLockButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].AccessorySizeLock then
+			GUIObject.AccessorySizeLockButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.AccessorySizeLockButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].MeshBasePartInvisible then
+			GUIObject.MeshBasePartInvisibleButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.MeshBasePartInvisibleButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		if PlayerData[SelectPlayer].BodyPartPhysics then
+			GUIObject.BodyPartPhysicsButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.BodyPartPhysicsButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		for BodyP, Bool in pairs(PlayerData[SelectPlayer].LocalTransparency) do
+			local Button = GUIObject.CharacterFrame:FindFirstChild(BodyP)
+
+			if Button then
+				if Bool == true then
+					Button.BackgroundTransparency = 0
+				else
+					Button.BackgroundTransparency = 0.5
+				end
+			end
+		end
+
+		if ClickExecute then
+			GUIObject.ClickExecuteButton.TextStrokeColor3 = Color3.new(0,255,0)
+		else
+			GUIObject.ClickExecuteButton.TextStrokeColor3 = Color3.new(255,0,0)
+		end
+
+		GUIObject.BundleText.Text = "Bundle: "..PlayerData[SelectPlayer].CurrentBundle
+		GUIObject.ToneButton.Text = "Tone: "..PlayerData[SelectPlayer].Tone
+		GUIObject.UsernameTextbox.Text = PlayerData[SelectPlayer].CatalogUsername
+		GUIObject.ShirtTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Shirt
+		GUIObject.PantsTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Pants
+		GUIObject.ShirtGraphicTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.ShirtGraphic
+
+		Function.CatalogAccessoryFrameAdd(SelectPlayer)
+		Function.MeshEditButton(GUIObject.MeshNameTextbox.Text)
+	end
+	
+	function Function.FallenPartCheck(Object)
+		if Object:IsA("BasePart") then
+			return Object.Position.Y < game.Workspace.FallenPartsDestroyHeight
 		end
 	end
 
@@ -7321,6 +7444,12 @@ function RoClothes(Player)
 
 		for PlayerName, DataList in pairs(PlayerData) do
 			for Part, Property in pairs(DataList.CurrentPartList.RealtimeUpdateList.Mesh) do
+				if Function.FallenPartCheck(Part) then
+					DataList.CurrentPartList.RealtimeUpdateList.Mesh[Part] = nil
+
+					return
+				end
+
 				local Base = Property.Base
 				local CFRAME = Property.CFrame
 				local CFRAME1 = Property.CFrame1
@@ -7347,6 +7476,12 @@ function RoClothes(Player)
 			end
 
 			for Part, Property in pairs(DataList.CurrentPartList.RealtimeUpdateList.Accessory) do
+				if Function.FallenPartCheck(Part) then
+					DataList.CurrentPartList.RealtimeUpdateList.Accessory[Part] = nil
+
+					return
+				end
+
 				local Base = Property.Base
 				local Attach = Property.Attachment
 				local PAttach = Property.ParentAttachment
@@ -7370,85 +7505,18 @@ function RoClothes(Player)
 				end
 			end
 
-			for Object, Property in pairs(DataList.CurrentPartList.ParentTransparency) do
+			for Part, Property in pairs(DataList.CurrentPartList.ParentTransparency) do
+				if Function.FallenPartCheck(Part) then
+					DataList.CurrentPartList.ParentTransparency[Part] = nil
+
+					return
+				end
+
 				local T = Property.T
 
-				Object.Transparency = T
+				Part.Transparency = T
 			end
 		end
-
-		-- Select Player
-
-		for _, v in pairs(GUIObject.ViewportFrame:GetChildren()) do
-			v.PrimaryPart.CFrame = v.PrimaryPart.CFrame * CFrame.Angles(0,math.rad(2),0)
-		end
-
-		for i, v in pairs(GUIObject.ClothesButtonFrame:GetChildren()) do
-			if v:IsA("Frame") then
-				if table.find(PlayerData[SelectPlayer].CurrentClothes, v.Name) then
-					v.BackgroundColor3 = Color3.fromRGB(255, 242, 67)
-				else
-					v.BackgroundColor3 = Color3.fromRGB(6, 0, 76)
-				end 
-			end
-		end
-
-		if PlayerData[SelectPlayer].AutoExecute then
-			GUIObject.AutoExecuteButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.AutoExecuteButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].BundleBodyColor then
-			GUIObject.BundleBodyColorButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.BundleBodyColorButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].Face then
-			GUIObject.FaceButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.FaceButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].MeshSizeLock then
-			GUIObject.MeshSizeLockButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.MeshSizeLockButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].AccessorySizeLock then
-			GUIObject.AccessorySizeLockButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.AccessorySizeLockButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].MeshBasePartInvisible then
-			GUIObject.MeshBasePartInvisibleButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.MeshBasePartInvisibleButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		if PlayerData[SelectPlayer].BodyPartPhysics then
-			GUIObject.BodyPartPhysicsButton.TextStrokeColor3 = Color3.new(0,255,0)
-		else
-			GUIObject.BodyPartPhysicsButton.TextStrokeColor3 = Color3.new(255,0,0)
-		end
-
-		for BodyP, Bool in pairs(PlayerData[SelectPlayer].LocalTransparency) do
-			local Button = GUIObject.CharacterFrame:FindFirstChild(BodyP)
-
-			if Button then
-				if Bool == true then
-					Button.BackgroundTransparency = 0
-				else
-					Button.BackgroundTransparency = 0.5
-				end
-			end
-		end
-
-		GUIObject.BundleText.Text = "Bundle: "..PlayerData[SelectPlayer].CurrentBundle
-		GUIObject.ToneButton.Text = "Tone: "..PlayerData[SelectPlayer].Tone
 
 		PreviewRotate += Circle / PreviewRotateSpeed
 		GUIObject.ViewportCamera.CFrame = CFrame.lookAt(Vector3.new(math.sin(PreviewRotate)*PreviewRadius, 0, math.cos(PreviewRotate)*PreviewRadius), Vector3.new(0,0,0))
@@ -7457,6 +7525,12 @@ function RoClothes(Player)
 	local PhysicsConnect = RS.Stepped:Connect(function(t,d)
 		for PlayerName, DataList in pairs(PlayerData) do
 			for Part, Property in pairs(DataList.CurrentPartList.BodyPartPhysics) do
+				if Function.FallenPartCheck(Part) then
+					DataList.CurrentPartList.BodyPartPhysics[Part] = nil
+
+					return
+				end
+
 				local Character = Player.Character
 
 				if Character then
@@ -7515,11 +7589,11 @@ function RoClothes(Player)
 						}
 
 						for From, To in pairs(PositionOffset) do
-							PositionList[From] = Position[To] * Spring.Velocity[To]
+							PositionList[From] = Position[To] * Spring.Velocity[To] * PositionPhysicsMultiply
 						end
 
 						for From, To in pairs(RotationOffset) do
-							RotationList[From] = math.rad(Rotation[To] * Spring.Velocity[To]) * 4
+							RotationList[From] = math.rad(Rotation[To] * Spring.Velocity[To]) * RotationPhysicsMultiply
 						end
 
 						Weld.C0 = CF * (
@@ -7543,6 +7617,48 @@ function RoClothes(Player)
 		end
 	end)
 
+	local FrameEnterConnect = GUIObject.MainFrame.MouseEnter:Connect(function()
+		IsEnterFrame = true
+	end)
+
+	local FrameLeaveConnect = GUIObject.MainFrame.MouseLeave:Connect(function()
+		if IsMouseDown == false then
+			IsEnterFrame = false
+		end
+	end)
+
+	local MouseDown = Mouse.Button1Down:Connect(function()
+		IsMouseDown = true
+		MouseDownStart = UIS:GetMouseLocation()
+		GuiPositionStart = GUIObject.MainFrame.Position
+		
+		if ClickExecute == true then
+			local Part = Mouse.Target
+			
+			if Part and Part.Parent ~= nil and Part.Parent.Parent ~= nil then
+				if Function.IsCharacter(Part.Parent) then
+					Function.CharacterExecute(Part.Parent, SelectPlayer)
+				elseif Function.IsCharacter(Part.Parent.Parent) then
+					Function.CharacterExecute(Part.Parent.Parent, SelectPlayer)
+				end
+			end
+		end
+	end)
+
+	local MouseUp = Mouse.Button1Up:Connect(function()
+		IsMouseDown = false
+		IsEnterFrame = false
+		MouseDownStart = nil
+		GuiPositionStart = nil
+	end)
+
+	local MouseMoveConnect = Mouse.Move:Connect(Function.DragUpdate)
+
+	table.insert(AllConnect, FrameEnterConnect)
+	table.insert(AllConnect, FrameLeaveConnect)
+	table.insert(AllConnect, MouseDown)
+	table.insert(AllConnect, MouseUp)
+	table.insert(AllConnect, MouseMoveConnect)
 	table.insert(AllConnect, UISBeganConnect)
 	table.insert(AllConnect, RunConnect)
 	table.insert(AllConnect, PhysicsConnect)
@@ -7638,56 +7754,58 @@ function RoClothes(Player)
 				SelectPlayer = GUIObject.PlayerExecute.Text
 				GUIObject.PlayerExecute.TextColor3 = Color3.new(1,1,1)
 
-				Function.CatalogAccessoryFrameAdd(SelectPlayer)
 				Function.PlayerDataAdd(SelectPlayer)
-				Function.MeshEditButton(GUIObject.MeshNameTextbox.Text)
-
-				GUIObject.UsernameTextbox.Text = PlayerData[SelectPlayer].CatalogUsername
-				GUIObject.ShirtTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Shirt
-				GUIObject.PantsTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Pants
-				GUIObject.ShirtGraphicTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.ShirtGraphic
+				Function.GUIUpdate()
 			elseif not game.Players:FindFirstChild(GUIObject.PlayerExecute.Text) and GUIObject.PlayerExecute.Text ~= "Self" then
 				GUIObject.PlayerExecute.TextColor3 = Color3.new(1,0,0)
 			elseif not game.Players:FindFirstChild(GUIObject.PlayerExecute.Text) and GUIObject.PlayerExecute.Text == "Self" then
 				SelectPlayer = Player.Name
 				GUIObject.PlayerExecute.TextColor3 = Color3.new(1,1,1)
 
-				Function.CatalogAccessoryFrameAdd(SelectPlayer)
-				Function.MeshEditButton(GUIObject.MeshNameTextbox.Text)
-
-				GUIObject.UsernameTextbox.Text = PlayerData[SelectPlayer].CatalogUsername
-				GUIObject.ShirtTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Shirt
-				GUIObject.PantsTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.Pants
-				GUIObject.ShirtGraphicTextbox.Text = PlayerData[SelectPlayer].CatalogClothes.ShirtGraphic
+				Function.GUIUpdate()
 			end
 		end)
 
 		local AutoExecuteConnect = GUIObject.AutoExecuteButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].AutoExecute = not PlayerData[SelectPlayer].AutoExecute
+			
+			Function.GUIUpdate()
 		end)
 
 		local BundleBodyColorConnect = GUIObject.BundleBodyColorButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].BundleBodyColor = not PlayerData[SelectPlayer].BundleBodyColor
+			
+			Function.GUIUpdate()
 		end)
 
 		local FaceConnect = GUIObject.FaceButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].Face = not PlayerData[SelectPlayer].Face
+			
+			Function.GUIUpdate()
 		end)
 
 		local MeshSizeLockConnect = GUIObject.MeshSizeLockButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].MeshSizeLock = not PlayerData[SelectPlayer].MeshSizeLock
+			
+			Function.GUIUpdate()
 		end)
 
 		local AccessorySizeLockConnect = GUIObject.AccessorySizeLockButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].AccessorySizeLock = not PlayerData[SelectPlayer].AccessorySizeLock
+			
+			Function.GUIUpdate()
 		end)
 
 		local MeshBasePartInvisibleConnect = GUIObject.MeshBasePartInvisibleButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].MeshBasePartInvisible = not PlayerData[SelectPlayer].MeshBasePartInvisible
+			
+			Function.GUIUpdate()
 		end)
 
 		local BodyPartPhysicsConnect = GUIObject.BodyPartPhysicsButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].BodyPartPhysics = not PlayerData[SelectPlayer].BodyPartPhysics
+			
+			Function.GUIUpdate()
 		end)
 
 		local ToneConnect = GUIObject.ToneButton.MouseButton1Click:Connect(function()
@@ -7696,8 +7814,8 @@ function RoClothes(Player)
 			else
 				PlayerData[SelectPlayer].Tone = "Base"
 			end
-
-			GUIObject.ToneButton.Text = "Tone: "..PlayerData[SelectPlayer].Tone
+			
+			Function.GUIUpdate()
 		end)
 
 		local KeybindConnect = GUIObject.KeybindButton.MouseButton1Click:Connect(function()
@@ -7717,24 +7835,50 @@ function RoClothes(Player)
 
 		local UsernameConnect = GUIObject.UsernameTextbox:GetPropertyChangedSignal("Text"):Connect(function()
 			PlayerData[SelectPlayer].CatalogUsername = GUIObject.UsernameTextbox.Text
+
+			Function.GUIUpdate()
 		end)
 
 		local ShirtConnect = GUIObject.ShirtTextbox:GetPropertyChangedSignal("Text"):Connect(function()
 			if tonumber(GUIObject.ShirtTextbox.Text) then
 				PlayerData[SelectPlayer].CatalogClothes.Shirt = GUIObject.ShirtTextbox.Text
+
+				Function.GUIUpdate()
 			end
 		end)
 
 		local PantsConnect = GUIObject.PantsTextbox:GetPropertyChangedSignal("Text"):Connect(function()
 			if tonumber(GUIObject.PantsTextbox.Text) then
 				PlayerData[SelectPlayer].CatalogClothes.Pants = GUIObject.PantsTextbox.Text
+
+				Function.GUIUpdate()
 			end
 		end)
 
 		local ShirtGraphicConnect = GUIObject.ShirtGraphicTextbox:GetPropertyChangedSignal("Text"):Connect(function()
 			if tonumber(GUIObject.ShirtGraphicTextbox.Text) then
 				PlayerData[SelectPlayer].CatalogClothes.ShirtGraphic = GUIObject.ShirtGraphicTextbox.Text
+
+				Function.GUIUpdate()
 			end
+		end)
+
+		local PositionPhysicsMultiplyConnect = GUIObject.PositionPhysicsMultiplyText:GetPropertyChangedSignal("Text"):Connect(function()
+			if tonumber(GUIObject.PositionPhysicsMultiplyText.Text) then
+				PositionPhysicsMultiply = GUIObject.PositionPhysicsMultiplyText.Text
+			end
+		end)
+
+		local RotationPhysicsMultiplyConnect = GUIObject.RotationPhysicsMultiplyText:GetPropertyChangedSignal("Text"):Connect(function()
+			if tonumber(GUIObject.RotationPhysicsMultiplyText.Text) then
+				RotationPhysicsMultiply = GUIObject.RotationPhysicsMultiplyText.Text
+			end
+		end)
+
+		local ClickExecuteConnect = GUIObject.ClickExecuteButton.MouseButton1Click:Connect(function()
+			ClickExecute = not ClickExecute
+
+			Function.GUIUpdate()
 		end)
 
 		local AccessoryConnect = GUIObject.AccessoryTextbox.FocusLost:Connect(function()
@@ -7764,7 +7908,8 @@ function RoClothes(Player)
 
 			if PartList[Text] then
 				GUIObject.MeshNameTextbox.TextColor3 = Color3.new(1,1,1)
-				Function.MeshEditButton(Text)
+
+				Function.GUIUpdate()
 			else
 				GUIObject.MeshNameTextbox.TextColor3 = Color3.new(1,0,0)
 			end
@@ -7786,7 +7931,8 @@ function RoClothes(Player)
 
 			local BBConnect = BButton:FindFirstChildOfClass("TextButton").MouseButton1Click:Connect(function()
 				PlayerData[SelectPlayer].CurrentBundle = BButton.Name
-				GUIObject.BundleText.Text = "Bundle: "..PlayerData[SelectPlayer].CurrentBundle
+
+				Function.GUIUpdate()
 			end)
 
 			table.insert(AllConnect, BBConnect)
@@ -7811,8 +7957,7 @@ function RoClothes(Player)
 					end
 				end
 
-				--PlayerData[SelectPlayer].CurrentClothes = CButton.Name
-				--ClothesText.Text = "Clothes: "..PlayerData[SelectPlayer].CurrentClothes
+				Function.GUIUpdate()
 			end)
 
 			table.insert(AllConnect, CBConnect)
@@ -7857,46 +8002,10 @@ function RoClothes(Player)
 		table.insert(AllConnect, ShirtGraphicConnect)
 		table.insert(AllConnect, PantsConnect)
 		table.insert(AllConnect, AccessoryConnect)
+		table.insert(AllConnect, PositionPhysicsMultiplyConnect)
+		table.insert(AllConnect, RotationPhysicsMultiplyConnect)
+		table.insert(AllConnect, ClickExecuteConnect)
 	end
-
-	local function DragUpdate()
-		if IsEnterFrame == true and IsMouseDown == true and MouseDownStart and GuiPositionStart then
-			local CurrentPosition = UIS:GetMouseLocation() - MouseDownStart
-			local ToChangePosition = UDim2.new(GuiPositionStart.X.Scale, GuiPositionStart.X.Offset + CurrentPosition.X, GuiPositionStart.Y.Scale, GuiPositionStart.Y.Offset + CurrentPosition.Y)
-
-			GUIObject.MainFrame.Position = GUIObject.MainFrame.Position:Lerp(ToChangePosition, 0.5)
-		end
-	end
-
-	local FrameEnterConnect = GUIObject.MainFrame.MouseEnter:Connect(function()
-		IsEnterFrame = true
-	end)
-
-	local FrameLeaveConnect = GUIObject.MainFrame.MouseLeave:Connect(function()
-		if IsMouseDown == false then
-			IsEnterFrame = false
-		end
-	end)
-
-	local MouseDown = Mouse.Button1Down:Connect(function()
-		IsMouseDown = true
-		MouseDownStart = UIS:GetMouseLocation()
-		GuiPositionStart = GUIObject.MainFrame.Position
-	end)
-
-	local MouseUp = Mouse.Button1Up:Connect(function()
-		IsMouseDown = false
-		IsEnterFrame = false
-		MouseDownStart = nil
-		GuiPositionStart = nil
-	end)
-
-	table.insert(AllConnect, FrameEnterConnect)
-	table.insert(AllConnect, FrameLeaveConnect)
-	table.insert(AllConnect, MouseDown)
-	table.insert(AllConnect, MouseUp)
-
-	Mouse.Move:Connect(DragUpdate)
 
 	Function.UIStrokeCreate(GUIObject.PageFrame)
 	Function.UIStrokeCreate(GUIObject.ToneFrame)
@@ -7929,6 +8038,9 @@ function RoClothes(Player)
 	Function.UIStrokeCreate(GUIObject.PantsFrame)
 	Function.UIStrokeCreate(GUIObject.AccessoryFrame)
 	Function.UIStrokeCreate(GUIObject.UsernameFrame)
+	Function.UIStrokeCreate(GUIObject.ClickExecuteFrame)
+	Function.UIStrokeCreate(GUIObject.PositionPhysicsMultiplyFrame)
+	Function.UIStrokeCreate(GUIObject.RotationPhysicsMultiplyFrame)
 
 	--Properties:
 
@@ -9131,8 +9243,96 @@ function RoClothes(Player)
 	GUIObject.PreviewButton.TextStrokeTransparency = 0.000
 	GUIObject.PreviewButton.TextWrapped = true
 
+	GUIObject.ClickExecuteFrame.Name = "ClickExecuteFrame"
+	GUIObject.ClickExecuteFrame.Parent = GUIObject.Menu2
+	GUIObject.ClickExecuteFrame.AnchorPoint = Vector2.new(0.5, 0)
+	GUIObject.ClickExecuteFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.ClickExecuteFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	GUIObject.ClickExecuteFrame.Position = UDim2.new(0.5, 0, 0.629999995, 0)
+	GUIObject.ClickExecuteFrame.Size = UDim2.new(0.891309202, 0, 0.0646399707, 0)
+
+	GUIObject.UIGradientCE.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 49, 54)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 83, 100))}
+	GUIObject.UIGradientCE.Rotation = -90
+	GUIObject.UIGradientCE.Parent = GUIObject.ClickExecuteFrame
+
+	GUIObject.UICornerCE.CornerRadius = UDim.new(0.25, 0)
+	GUIObject.UICornerCE.Parent = GUIObject.ClickExecuteFrame
+
+	GUIObject.ClickExecuteButton.Name = "ClickExecuteButton"
+	GUIObject.ClickExecuteButton.Parent = GUIObject.ClickExecuteFrame
+	GUIObject.ClickExecuteButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	GUIObject.ClickExecuteButton.BackgroundTransparency = 1.000
+	GUIObject.ClickExecuteButton.BorderSizePixel = 0
+	GUIObject.ClickExecuteButton.LayoutOrder = 1
+	GUIObject.ClickExecuteButton.Size = UDim2.new(1, 0, 1, 0)
+	GUIObject.ClickExecuteButton.Font = Enum.Font.Code
+	GUIObject.ClickExecuteButton.Text = "Click Execute"
+	GUIObject.ClickExecuteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.ClickExecuteButton.TextScaled = true
+	GUIObject.ClickExecuteButton.TextSize = 14.000
+	GUIObject.ClickExecuteButton.TextStrokeColor3 = Color3.fromRGB(255, 0, 0)
+	GUIObject.ClickExecuteButton.TextStrokeTransparency = 0.000
+	GUIObject.ClickExecuteButton.TextWrapped = true
+
+	GUIObject.PositionPhysicsMultiplyFrame.Name = "PositionPhysicsMultiplyFrame"
+	GUIObject.PositionPhysicsMultiplyFrame.Parent = GUIObject.Menu2
+	GUIObject.PositionPhysicsMultiplyFrame.AnchorPoint = Vector2.new(0.5, 0)
+	GUIObject.PositionPhysicsMultiplyFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.PositionPhysicsMultiplyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	GUIObject.PositionPhysicsMultiplyFrame.Position = UDim2.new(0.5, 0, 0.714999974, 0)
+	GUIObject.PositionPhysicsMultiplyFrame.Size = UDim2.new(0.891309202, 0, 0.0646399707, 0)
+
+	GUIObject.UICornerPPM.CornerRadius = UDim.new(0.25, 0)
+	GUIObject.UICornerPPM.Parent = GUIObject.PositionPhysicsMultiplyFrame
+
+	GUIObject.PositionPhysicsMultiplyText.Name = "PositionPhysicsMultiplyText"
+	GUIObject.PositionPhysicsMultiplyText.Parent = GUIObject.PositionPhysicsMultiplyFrame
+	GUIObject.PositionPhysicsMultiplyText.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	GUIObject.PositionPhysicsMultiplyText.BackgroundTransparency = 1.000
+	GUIObject.PositionPhysicsMultiplyText.Size = UDim2.new(1, 0, 1, 0)
+	GUIObject.PositionPhysicsMultiplyText.Font = Enum.Font.Code
+	GUIObject.PositionPhysicsMultiplyText.PlaceholderText = "Position Physics Multiply"
+	GUIObject.PositionPhysicsMultiplyText.Text = "1"
+	GUIObject.PositionPhysicsMultiplyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.PositionPhysicsMultiplyText.TextScaled = true
+	GUIObject.PositionPhysicsMultiplyText.TextSize = 14.000
+	GUIObject.PositionPhysicsMultiplyText.TextWrapped = true
+
+	GUIObject.UIGradientPPM.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 54, 45)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 100, 67))}
+	GUIObject.UIGradientPPM.Rotation = -90
+	GUIObject.UIGradientPPM.Parent = GUIObject.PositionPhysicsMultiplyFrame
+
+	GUIObject.RotationPhysicsMultiplyFrame.Name = "RotationPhysicsMultiplyFrame"
+	GUIObject.RotationPhysicsMultiplyFrame.Parent = GUIObject.Menu2
+	GUIObject.RotationPhysicsMultiplyFrame.AnchorPoint = Vector2.new(0.5, 0)
+	GUIObject.RotationPhysicsMultiplyFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.RotationPhysicsMultiplyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	GUIObject.RotationPhysicsMultiplyFrame.Position = UDim2.new(0.5, 0, 0.800000012, 0)
+	GUIObject.RotationPhysicsMultiplyFrame.Size = UDim2.new(0.891309202, 0, 0.0646399707, 0)
+
+	GUIObject.UICornerRPM.CornerRadius = UDim.new(0.25, 0)
+	GUIObject.UICornerRPM.Parent = GUIObject.RotationPhysicsMultiplyFrame
+
+	GUIObject.RotationPhysicsMultiplyText.Name = "RotationPhysicsMultiplyText"
+	GUIObject.RotationPhysicsMultiplyText.Parent = GUIObject.RotationPhysicsMultiplyFrame
+	GUIObject.RotationPhysicsMultiplyText.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	GUIObject.RotationPhysicsMultiplyText.BackgroundTransparency = 1.000
+	GUIObject.RotationPhysicsMultiplyText.Size = UDim2.new(1, 0, 1, 0)
+	GUIObject.RotationPhysicsMultiplyText.Font = Enum.Font.Code
+	GUIObject.RotationPhysicsMultiplyText.PlaceholderText = "Rotation  Physics Multiply"
+	GUIObject.RotationPhysicsMultiplyText.Text = "4"
+	GUIObject.RotationPhysicsMultiplyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.RotationPhysicsMultiplyText.TextScaled = true
+	GUIObject.RotationPhysicsMultiplyText.TextSize = 14.000
+	GUIObject.RotationPhysicsMultiplyText.TextWrapped = true
+
+	GUIObject.UIGradientRPM.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 54, 45)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 100, 67))}
+	GUIObject.UIGradientRPM.Rotation = -90
+	GUIObject.UIGradientRPM.Parent = GUIObject.RotationPhysicsMultiplyFrame
+
 	Function.CatalogAccessoryFrameAdd(SelectPlayer)
 	Function.GUIFunc()
+	Function.GUIUpdate()
 
 	--[[
 	--------------------------------------------------------------------------------------------------------------
