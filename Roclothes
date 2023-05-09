@@ -16,7 +16,7 @@
 
 	
 	/ ＲＯＣＬＯＴＨＥＳ
-	Version - 0.6.1
+	Version - 0.6.3
 	Link - discord.gg/HBzvWE6Rp3
 	
 	| RoClothes Is Exploiting Script, Allowing Player To Have Nude BodyParts/Clothes
@@ -298,6 +298,13 @@ function RoClothes(Player)
 	GUIObject.UICornerRPM = Instance.new("UICorner")
 	GUIObject.RotationPhysicsMultiplyText = Instance.new("TextBox")
 	GUIObject.UIGradientRPM = Instance.new("UIGradient")
+	GUIObject.MobileCloseButtonScreen = Instance.new("ScreenGui")
+	GUIObject.MobileCloseButton = Instance.new("ImageButton")
+	GUIObject.MCBUIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+	GUIObject.SkinToneFrame = Instance.new("Frame")
+	GUIObject.STUICorner = Instance.new("UICorner")
+	GUIObject.SkinToneText = Instance.new("TextBox")
+	GUIObject.STUIGradient = Instance.new("UIGradient")
 
 	local Mouse = Player:GetMouse()
 
@@ -313,14 +320,14 @@ function RoClothes(Player)
 	local TS = game:GetService("TweenService")
 	local MPS = game:GetService("MarketplaceService")
 
-	local CVersion = "0.6.1"
+	local CVersion = "0.6.3"
 
 	local Method = 1
 	local MaxMethod = 2
 
 	local KEYBIND = Enum.KeyCode.Insert
 	local KeybindDetect = false
-	
+
 	local ClickExecute = false
 
 	local IsEnterFrame = false
@@ -342,7 +349,7 @@ function RoClothes(Player)
 	local PreviewRadius = 5
 	local PreviewRotateSpeed = 200
 	local CharacterPreviewLoading = false
-	
+
 	local PositionPhysicsMultiply = 1
 	local RotationPhysicsMultiply = 4
 
@@ -368,6 +375,7 @@ function RoClothes(Player)
 				ShirtGraphic = "",
 			},
 			CatalogAccessory = {},
+			SkinTone = nil,
 
 			PartList = Function.PartListDefault(),
 
@@ -391,6 +399,7 @@ function RoClothes(Player)
 				},
 				PartParent = {},
 				BodyPartPhysics = {},
+				AreolaDecal = {},
 			}
 		}
 	end
@@ -4676,7 +4685,7 @@ function RoClothes(Player)
 	local PlayerData = {
 		[Player.Name] = Function.PlayerDataDefault()
 	}
-	
+
 	local DummyMesh = {
 		["Head"] = {
 			Size = Vector3.new(2, 1, 1),
@@ -5965,8 +5974,6 @@ function RoClothes(Player)
 	end
 
 	function Function.AreolaDecalCreate(ObjectInstance, Character, Extra, Data)
-		local Decals = {}
-
 		if table.find(PlayerData[Data].CurrentClothes, "Roblox Clothes Without Breasts") or (not table.find(PlayerData[Data].CurrentClothes, "Roblox Clothes") or table.find(PlayerData[Data].CurrentClothes, "Roblox Clothes") and (ObjectInstance.Name ~= "Left Breast" and ObjectInstance.Name ~= "Right Breast")) then
 			for i = 1, 2 do
 				local Decal = Instance.new("Decal", ObjectInstance)
@@ -5974,11 +5981,11 @@ function RoClothes(Player)
 				Decal.Texture = "http://www.roblox.com/asset/?id=6667257628"
 				Decal.Face = "Left"
 				Decal.Name = "Areola Decal".." "..tostring(i)
-				Decals[i] = Decal
+				PlayerData[Data].CurrentPartList.AreolaDecal[ObjectInstance] = Decal
 			end
 
 			if Extra.Tone == "Dark" then
-				for _, v in pairs(Decals) do
+				for _, v in pairs(PlayerData[Data].CurrentPartList.AreolaDecal) do
 					local H,S,V = ObjectInstance.Color:ToHSV()
 					local DarkerColorCode = Color3.fromHSV(H,S,V+(-DarkerColorPercentage * V/100))
 
@@ -6538,119 +6545,121 @@ function RoClothes(Player)
 	end
 
 	function Function.Weld(MeshDetail, Character, Extra, Data)
-		setmetatable(MeshDetail, MetaClothes)
+		if Character.Parent ~= nil then
+			setmetatable(MeshDetail, MetaClothes)
 
-		local INSTANCE = MeshDetail["Instance"]
-		local NAME = MeshDetail["Name"]
+			local INSTANCE = MeshDetail["Instance"]
+			local NAME = MeshDetail["Name"]
 
-		local SIZE = MeshDetail["Size"]
-		local CFRAME = MeshDetail["CFrame"]
-		local CFRAME1 = MeshDetail["CFrame1"]
-		local TRANSPARENCY = MeshDetail["Transparency"]
-		local REFLECTANCE = MeshDetail["Reflectance"]
-		local MESHBASEPARTTRANSPARENCY = MeshDetail["MeshBasePartTransparency"]
-		local MATERIAL = MeshDetail["Material"]
-		local COLOR = MeshDetail["Color"]
-		local PARENT = MeshDetail["Parent"]
-		local PARENTTRANSPARENCY = MeshDetail["ParentTransparency"]
-		local FUNCTION = MeshDetail["Function"]
+			local SIZE = MeshDetail["Size"]
+			local CFRAME = MeshDetail["CFrame"]
+			local CFRAME1 = MeshDetail["CFrame1"]
+			local TRANSPARENCY = MeshDetail["Transparency"]
+			local REFLECTANCE = MeshDetail["Reflectance"]
+			local MESHBASEPARTTRANSPARENCY = MeshDetail["MeshBasePartTransparency"]
+			local MATERIAL = MeshDetail["Material"]
+			local COLOR = MeshDetail["Color"]
+			local PARENT = MeshDetail["Parent"]
+			local PARENTTRANSPARENCY = MeshDetail["ParentTransparency"]
+			local FUNCTION = MeshDetail["Function"]
 
-		local MESHID = MeshDetail["MeshId"]
-		local TEXTUREID = MeshDetail["TextureId"]
-		local DOUBLESIDED = MeshDetail["DoubleSided"]
+			local MESHID = MeshDetail["MeshId"]
+			local TEXTUREID = MeshDetail["TextureId"]
+			local DOUBLESIDED = MeshDetail["DoubleSided"]
 
-		local SHAPE = MeshDetail["Shape"]
+			local SHAPE = MeshDetail["Shape"]
 
-		local BodyPart = Character:FindFirstChild(PARENT[1])
+			local BodyPart = Character:FindFirstChild(PARENT[1])
 
-		if BodyPart then
-			local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(BodyPart.Size, BodyPartSize[PARENT[1]])
+			if BodyPart then
+				local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(BodyPart.Size, BodyPartSize[PARENT[1]])
 
-			local ObjectInstance
+				local ObjectInstance
 
-			local Parent = Character
+				local Parent = Character
 
-			for Index = 1, #PARENT do
-				Parent = Parent:FindFirstChild(PARENT[Index])
-			end
+				for Index = 1, #PARENT do
+					Parent = Parent:FindFirstChild(PARENT[Index])
+				end
 
-			if PARENTTRANSPARENCY ~= nil then
-				PlayerData[Data].CurrentPartList.ParentTransparency[Parent] = {D = Parent.Transparency, T = PARENTTRANSPARENCY}
-				Parent.Transparency = PARENTTRANSPARENCY
-			end
+				if PARENTTRANSPARENCY ~= nil then
+					PlayerData[Data].CurrentPartList.ParentTransparency[Parent] = {D = Parent.Transparency, T = PARENTTRANSPARENCY}
+					Parent.Transparency = PARENTTRANSPARENCY
+				end
 
-			if INSTANCE == "Mesh" then
-				ObjectInstance = IS:CreateMeshPartAsync(MESHID, Enum.CollisionFidelity.Box, Enum.RenderFidelity.Performance)
+				if INSTANCE == "Mesh" then
+					ObjectInstance = IS:CreateMeshPartAsync(MESHID, Enum.CollisionFidelity.Box, Enum.RenderFidelity.Performance)
 
-				ObjectInstance.TextureID = TEXTUREID
-				ObjectInstance.DoubleSided = DOUBLESIDED
-			elseif INSTANCE == "Part" then
-				ObjectInstance = Instance.new("Part")
-				ObjectInstance.Shape = SHAPE
-			end
+					ObjectInstance.TextureID = TEXTUREID
+					ObjectInstance.DoubleSided = DOUBLESIDED
+				elseif INSTANCE == "Part" then
+					ObjectInstance = Instance.new("Part")
+					ObjectInstance.Shape = SHAPE
+				end
 
-			local Color
+				local Color
 
-			if COLOR["Color"] == "Parent" then
-				Color = Parent.Color
-			else
-				Color = COLOR["Color"]
-			end
+				if COLOR["Color"] == "Parent" then
+					Color = Parent.Color
+				else
+					Color = COLOR["Color"]
+				end
 
-			local H,S,V = Color:ToHSV()
+				local H,S,V = Color:ToHSV()
 
-			if COLOR["Tone"] == "Darker" then
-				Color = Color3.fromHSV(H,S,V+(-DarkerColorPercentage * V/100))
-			elseif COLOR["Tone"] == "Darker2" then
-				Color = Color3.fromHSV(H,S,V+(-Darker2ColorPercentage * V/100))
-			end
+				if COLOR["Tone"] == "Darker" then
+					Color = Color3.fromHSV(H,S,V+(-DarkerColorPercentage * V/100))
+				elseif COLOR["Tone"] == "Darker2" then
+					Color = Color3.fromHSV(H,S,V+(-Darker2ColorPercentage * V/100))
+				end
 
-			if PlayerData[Data].MeshBasePartInvisible then
-				ObjectInstance.Transparency = MESHBASEPARTTRANSPARENCY
-			end
+				if PlayerData[Data].MeshBasePartInvisible then
+					ObjectInstance.Transparency = MESHBASEPARTTRANSPARENCY
+				end
 
-			ObjectInstance.Color = Color
+				ObjectInstance.Color = Color
 
-			ObjectInstance.CanCollide = false
-			ObjectInstance.CanQuery = false
-			ObjectInstance.CanTouch = false
-			ObjectInstance.Massless = true
+				ObjectInstance.CanCollide = false
+				ObjectInstance.CanQuery = false
+				ObjectInstance.CanTouch = false
+				ObjectInstance.Massless = true
 
-			ObjectInstance.Name = NAME
-			ObjectInstance.Transparency = TRANSPARENCY
-			ObjectInstance.Reflectance = REFLECTANCE
-			ObjectInstance.Material = MATERIAL
+				ObjectInstance.Name = NAME
+				ObjectInstance.Transparency = TRANSPARENCY
+				ObjectInstance.Reflectance = REFLECTANCE
+				ObjectInstance.Material = MATERIAL
 
-			local WeldInstance = Instance.new("Weld", ObjectInstance)
-			WeldInstance.Name = NAME.." Weld"
-			WeldInstance.Part0 = Parent
-			WeldInstance.Part1 = ObjectInstance
+				local WeldInstance = Instance.new("Weld", ObjectInstance)
+				WeldInstance.Name = NAME.." Weld"
+				WeldInstance.Part0 = Parent
+				WeldInstance.Part1 = ObjectInstance
 
-			if PlayerData[Data].MeshSizeLock == false then
-				ObjectInstance.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
-				WeldInstance.C0 = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
-				WeldInstance.C1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
-			else
-				ObjectInstance.Size = SIZE
-				WeldInstance.C0 = CFRAME
-				WeldInstance.C1 = CFRAME1
-			end
+				if PlayerData[Data].MeshSizeLock == false then
+					ObjectInstance.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
+					WeldInstance.C0 = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
+					WeldInstance.C1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
+				else
+					ObjectInstance.Size = SIZE
+					WeldInstance.C0 = CFRAME
+					WeldInstance.C1 = CFRAME1
+				end
 
-			ObjectInstance.Parent = Parent
+				ObjectInstance.Parent = Parent
 
-			if FUNCTION ~= "" then
-				if typeof(FUNCTION) == "string" then
-					Function[FUNCTION](ObjectInstance, Character, Extra, Data)
-				elseif typeof(FUNCTION) == "table" then
-					for i, v in pairs(FUNCTION) do
-						Function[v](ObjectInstance, Character, Extra, Data)
+				if FUNCTION ~= "" then
+					if typeof(FUNCTION) == "string" then
+						Function[FUNCTION](ObjectInstance, Character, Extra, Data)
+					elseif typeof(FUNCTION) == "table" then
+						for i, v in pairs(FUNCTION) do
+							Function[v](ObjectInstance, Character, Extra, Data)
+						end
 					end
 				end
-			end
 
-			PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[ObjectInstance] = {Size = SIZE, CFrame = CFRAME, CFrame1 = CFRAME1, Base = BodyPart, Weld = WeldInstance}
+				PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh[ObjectInstance] = {Size = SIZE, CFrame = CFRAME, CFrame1 = CFRAME1, Base = BodyPart, Weld = WeldInstance}
 
-			return ObjectInstance
+				return ObjectInstance
+			end 
 		end
 	end
 
@@ -6671,9 +6680,19 @@ function RoClothes(Player)
 		return CharacterAttachment
 	end
 
+	function Function.BodyColorForceSet(Character, Color)
+		for i, v in pairs(BodyColorPart) do
+			local Base = Character:FindFirstChild(v)
+
+			if Base then
+				Base.Color = Color
+			end
+		end
+	end
+
 	function Function.BodyColorSet(Character, BodyColor)
 		for i, v in pairs(BodyColorPart) do
-			local Base = Character:FindFirstChildOfClass(v)
+			local Base = Character:FindFirstChild(v)
 
 			if Base then
 				Base.Color = BodyColor[i]
@@ -6935,8 +6954,7 @@ function RoClothes(Player)
 		if Character then
 			Function.PlayerDataAdd(Data)
 
-			PlayerData[Data].CurrentPartList.RealtimeUpdateList.Mesh = {}
-			PlayerData[Data].CurrentPartList.RealtimeUpdateList.Accessory = {}
+			local DataDetail = PlayerData[Data]
 
 			local Human = Character:FindFirstChildOfClass("Humanoid")
 			local Head = Character:WaitForChild("Head")
@@ -6962,7 +6980,7 @@ function RoClothes(Player)
 
 					for _, v in pairs(CharacterValue.Value:GetChildren()) do
 						if v:IsA("BasePart") and table.find(Method2BodyPart, v.Name) then
-							PlayerData[Data].CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
+							DataDetail.CurrentPartList.ParentTransparency[v] = {v = v.Transparency, T = 1}
 
 							local Part = Instance.new("Part", Character)
 							Part.Size = v.Size
@@ -6984,17 +7002,24 @@ function RoClothes(Player)
 
 			Function.CatalogLoader(Character, CharacterAttachment, Data)
 
-			if PlayerData[Data].CurrentBundle ~= "nil" and PlayerData[Data].CurrentBundle ~= "Bald" then
-				Function.BodyColorsFunction(Character, PlayerData[Data].CurrentBundle, Data)
-				Function.AccessoryLoaderFunction(Character, CharacterAttachment, PlayerData[Data].CurrentBundle, Data)
+			if DataDetail.CurrentBundle ~= "nil" and DataDetail.CurrentBundle ~= "Bald" then
+				Function.AccessoryLoaderFunction(Character, CharacterAttachment, DataDetail.CurrentBundle, Data)
+
+				if DataDetail.SkinTone == nil then
+					Function.BodyColorsFunction(Character, DataDetail.CurrentBundle, Data)
+				end
+			end
+
+			if DataDetail.SkinTone ~= nil then
+				Function.BodyColorForceSet(Character, DataDetail.SkinTone)
 			end
 
 			local TShirt = Character:FindFirstChildOfClass("ShirtGraphic")
 			local Shirt = Character:FindFirstChildOfClass("Shirt")
 			local Pants = Character:FindFirstChildOfClass("Pants")
-			local Extra = {["TShirt"] = TShirt, ["Shirt"] = Shirt, ["Pants"] = Pants, ["Tone"] = PlayerData[Data].Tone}
+			local Extra = {["TShirt"] = TShirt, ["Shirt"] = Shirt, ["Pants"] = Pants, ["Tone"] = DataDetail.Tone}
 
-			local PartListData = PlayerData[Data].PartList
+			local PartListData = DataDetail.PartList
 
 			local TORSO = Function.Weld(PartListData["Torso"], Character, Extra, Data)
 			local LEFTLEG = Function.Weld(PartListData["Left Leg"], Character, Extra, Data)
@@ -7028,7 +7053,7 @@ function RoClothes(Player)
 			PlayerData[Data].CurrentPartList["Organ"]["Vulva Closed"] = VULVACLOSED
 			PlayerData[Data].CurrentPartList["Organ"]["Vagina Closed"] = VAGINACLOSED
 
-			if PlayerData[Data].BodyPartPhysics then
+			if DataDetail.BodyPartPhysics then
 				local Torso = Character:FindFirstChild("Torso")
 
 				if Torso then
@@ -7151,37 +7176,37 @@ function RoClothes(Player)
 				end
 			end
 
-			if PlayerData[Data].MeshBasePartInvisible then
+			if DataDetail.MeshBasePartInvisible then
 				TORSO.Transparency = 1
 				LEFTLEG.Transparency = 1
 				RIGHTLEG.Transparency = 1
 				LEFTARM.Transparency = 1
 				RIGHTARM.Transparency = 1
-				PlayerData[Data].CurrentPartList.ParentTransparency[TORSO] = {D = 0, T = 1}
-				PlayerData[Data].CurrentPartList.ParentTransparency[LEFTLEG] = {D = 0, T = 1}
-				PlayerData[Data].CurrentPartList.ParentTransparency[RIGHTLEG] = {D = 0, T = 1}
-				PlayerData[Data].CurrentPartList.ParentTransparency[LEFTARM] = {D = 0, T = 1}
-				PlayerData[Data].CurrentPartList.ParentTransparency[RIGHTARM] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[TORSO] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[LEFTLEG] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[RIGHTLEG] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[LEFTARM] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[RIGHTARM] = {D = 0, T = 1}
 			end
 
-			for _, SelectClothes in pairs(PlayerData[Data].CurrentClothes) do
+			for _, SelectClothes in pairs(DataDetail.CurrentClothes) do
 				if SelectClothes ~= "nil" then
 					for i, v in pairs(Clothes[SelectClothes]["Weld"]) do
 						local ClothesPart = Function.Weld(PartListData[v], Character, Extra, Data)
-						PlayerData[Data].CurrentPartList["Clothes"][v] = ClothesPart
+						DataDetail.CurrentPartList["Clothes"][v] = ClothesPart
 					end
 
 					if Clothes[SelectClothes]["Unvisible"] ~= nil then
 						for i, v in pairs(Clothes[SelectClothes]["Unvisible"]) do
-							PlayerData[Data].CurrentPartList["Organ"][v].Transparency = 1
+							DataDetail.CurrentPartList["Organ"][v].Transparency = 1
 						end
 					end
 				end
 			end
 
-			if FaceDecal and PlayerData[Data].Face == false then
+			if FaceDecal and DataDetail.Face == false then
 				FaceDecal.Transparency = 1
-				PlayerData[Data].CurrentPartList.ParentTransparency[FaceDecal] = {D = 0, T = 1}
+				DataDetail.CurrentPartList.ParentTransparency[FaceDecal] = {D = 0, T = 1}
 			end
 		end
 	end
@@ -7226,7 +7251,7 @@ function RoClothes(Player)
 
 		local PlayerPartList = PlayerData[SelectPlayer]["PartList"]
 		local MeshDetail = PlayerPartList[Name]
-		
+
 		if MeshDetail then
 			setmetatable(MeshDetail, MetaClothes)
 
@@ -7275,11 +7300,11 @@ function RoClothes(Player)
 			GUIObject.MainFrame.Position = GUIObject.MainFrame.Position:Lerp(ToChangePosition, 0.5)
 		end
 	end
-	
-	function Function.IsCharacter(Part)
-		return Part:FindFirstChild("Torso") or Part:FindFirstChild("Head") or Part:FindFirstChild("Right Arm") or Part:FindFirstChild("Left Arm") or Part:FindFirstChild("Right Leg") or Part:FindFirstChild("Left Leg")
+
+	function Function.IsCharacter(Model)
+		return Model:FindFirstChild("Torso") or Model:FindFirstChild("Head") or Model:FindFirstChild("Right Arm") or Model:FindFirstChild("Left Arm") or Model:FindFirstChild("Right Leg") or Model:FindFirstChild("Left Leg")
 	end
-	
+
 	function Function.GUIUpdate()
 		for i, v in pairs(GUIObject.ClothesButtonFrame:GetChildren()) do
 			if v:IsA("Frame") then
@@ -7361,11 +7386,27 @@ function RoClothes(Player)
 		Function.CatalogAccessoryFrameAdd(SelectPlayer)
 		Function.MeshEditButton(GUIObject.MeshNameTextbox.Text)
 	end
-	
+
 	function Function.FallenPartCheck(Object)
 		if Object:IsA("BasePart") then
 			return Object.Position.Y < game.Workspace.FallenPartsDestroyHeight
 		end
+	end
+
+	function Function.IsParentNil(Object)
+		if Object then
+			local Target = Object
+
+			while Target and Target.Parent ~= nil and Target ~= game do
+				Target = Target.Parent
+			end
+
+			if Target ~= game then
+				return true
+			end
+		end
+
+		return false
 	end
 
 	--[[
@@ -7444,77 +7485,103 @@ function RoClothes(Player)
 
 		for PlayerName, DataList in pairs(PlayerData) do
 			for Part, Property in pairs(DataList.CurrentPartList.RealtimeUpdateList.Mesh) do
-				if Function.FallenPartCheck(Part) then
+				local Removed = false
+
+				if Part.Parent == nil or Function.IsParentNil(Part) or Function.FallenPartCheck(Part) then
 					DataList.CurrentPartList.RealtimeUpdateList.Mesh[Part] = nil
 
-					return
+					Removed = true
 				end
 
-				local Base = Property.Base
-				local CFRAME = Property.CFrame
-				local CFRAME1 = Property.CFrame1
-				local SIZE = Property.Size
-				local Weld = Property.Weld
+				if Removed == false then
+					local Base = Property.Base
+					local CFRAME = Property.CFrame
+					local CFRAME1 = Property.CFrame1
+					local SIZE = Property.Size
+					local Weld = Property.Weld
 
-				local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
+					local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
 
-				if PlayerData[PlayerName].LocalTransparency[Base.Name] == true then
-					Part.LocalTransparencyModifier = 0
-				end
+					if PlayerData[PlayerName].LocalTransparency[Base.Name] == true then
+						Part.LocalTransparencyModifier = 0
+					end
 
-				local CCFRAME = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
-				local CCFRAME1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
+					local CCFRAME = CFrame.new(CFRAME.Position.X * XMultiply, CFRAME.Position.Y * YMultiply, CFRAME.Position.Z * ZMultiply) * CFRAME.Rotation
+					local CCFRAME1 = CFrame.new(CFRAME1.Position.X * XMultiply, CFRAME1.Position.Y * YMultiply, CFRAME1.Position.Z * ZMultiply) * CFRAME1.Rotation
 
-				if PlayerData[PlayerName].MeshSizeLock == false and not PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part] then
-					Part.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
-					Weld.C0 = CCFRAME
-					Weld.C1 = CCFRAME1
-				else
-					PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF = CCFRAME
-					PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF1 = CCFRAME1
+					if PlayerData[PlayerName].MeshSizeLock == false and not PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part] then
+						Part.Size = Vector3.new(SIZE.X * XMultiply, SIZE.Y * YMultiply, SIZE.Z * ZMultiply)
+						Weld.C0 = CCFRAME
+						Weld.C1 = CCFRAME1
+					else
+						PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF = CCFRAME
+						PlayerData[PlayerName].CurrentPartList.BodyPartPhysics[Part].CF1 = CCFRAME1
+					end
 				end
 			end
 
 			for Part, Property in pairs(DataList.CurrentPartList.RealtimeUpdateList.Accessory) do
-				if Function.FallenPartCheck(Part) then
+				local Removed = false
+
+				if Part.Parent == nil or Function.IsParentNil(Part) or Function.FallenPartCheck(Part) then
 					DataList.CurrentPartList.RealtimeUpdateList.Accessory[Part] = nil
 
-					return
+					Removed = true
 				end
 
-				local Base = Property.Base
-				local Attach = Property.Attachment
-				local PAttach = Property.ParentAttachment
-				local CF = Property.CFrame
-				local Size = Property.Size
-				local Scale = Property.Scale
-				local SpecialMesh = Property.SpecialMesh
-				local Weld = Property.Weld
+				if Removed == false then
+					local Base = Property.Base
+					local Attach = Property.Attachment
+					local PAttach = Property.ParentAttachment
+					local CF = Property.CFrame
+					local Size = Property.Size
+					local Scale = Property.Scale
+					local SpecialMesh = Property.SpecialMesh
+					local Weld = Property.Weld
 
-				local PAttachCFrame = AttachmentCFrame[PAttach.Name]
+					local PAttachCFrame = AttachmentCFrame[PAttach.Name]
 
-				local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
+					local XMultiply, YMultiply, ZMultiply = Function.MultiplyCalculate(Base.Size, BodyPartSize[Base.Name])
 
-				if PlayerData[PlayerName].AccessorySizeLock == false then
-					Part.Size = Vector3.new(Size.X * XMultiply, Size.Y * YMultiply, Size.Z * ZMultiply)
-					SpecialMesh.Scale = Vector3.new(Scale.X * XMultiply, Scale.Y * YMultiply, Scale.Z * ZMultiply)
-					Attach.CFrame = CFrame.new(CF.Position.X * XMultiply, CF.Position.Y * YMultiply, CF.Position.Z * ZMultiply) * CF.Rotation
-					PAttach.CFrame = CFrame.new(PAttachCFrame.Position.X * XMultiply, PAttachCFrame.Position.Y * YMultiply, PAttachCFrame.Position.Z * ZMultiply) * PAttachCFrame.Rotation
-					Weld.C0 = Attach.CFrame
-					Weld.C1 = PAttach.CFrame
+					if PlayerData[PlayerName].AccessorySizeLock == false then
+						Part.Size = Vector3.new(Size.X * XMultiply, Size.Y * YMultiply, Size.Z * ZMultiply)
+						SpecialMesh.Scale = Vector3.new(Scale.X * XMultiply, Scale.Y * YMultiply, Scale.Z * ZMultiply)
+						Attach.CFrame = CFrame.new(CF.Position.X * XMultiply, CF.Position.Y * YMultiply, CF.Position.Z * ZMultiply) * CF.Rotation
+						PAttach.CFrame = CFrame.new(PAttachCFrame.Position.X * XMultiply, PAttachCFrame.Position.Y * YMultiply, PAttachCFrame.Position.Z * ZMultiply) * PAttachCFrame.Rotation
+						Weld.C0 = Attach.CFrame
+						Weld.C1 = PAttach.CFrame
+					end
 				end
 			end
 
 			for Part, Property in pairs(DataList.CurrentPartList.ParentTransparency) do
-				if Function.FallenPartCheck(Part) then
+				local Removed = false
+
+				if Part.Parent == nil or Function.IsParentNil(Part) or Function.FallenPartCheck(Part) then
 					DataList.CurrentPartList.ParentTransparency[Part] = nil
 
-					return
+					Removed = true
 				end
 
-				local T = Property.T
+				if Removed == false then
+					local T = Property.T
 
-				Part.Transparency = T
+					Part.Transparency = T
+				end
+			end
+
+			for Part, Decal in pairs(DataList.CurrentPartList.AreolaDecal) do
+				local Removed = false
+
+				if Part.Parent == nil or Function.IsParentNil(Part) or Function.FallenPartCheck(Part) then
+					DataList.CurrentPartList.AreolaDecal[Part] = nil
+
+					Removed = true
+				end
+
+				if Removed == false then
+					Decal.LocalTransparencyModifier = Part.LocalTransparencyModifier
+				end
 			end
 		end
 
@@ -7631,10 +7698,10 @@ function RoClothes(Player)
 		IsMouseDown = true
 		MouseDownStart = UIS:GetMouseLocation()
 		GuiPositionStart = GUIObject.MainFrame.Position
-		
+
 		if ClickExecute == true then
 			local Part = Mouse.Target
-			
+
 			if Part and Part.Parent ~= nil and Part.Parent.Parent ~= nil then
 				if Function.IsCharacter(Part.Parent) then
 					Function.CharacterExecute(Part.Parent, SelectPlayer)
@@ -7768,43 +7835,43 @@ function RoClothes(Player)
 
 		local AutoExecuteConnect = GUIObject.AutoExecuteButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].AutoExecute = not PlayerData[SelectPlayer].AutoExecute
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local BundleBodyColorConnect = GUIObject.BundleBodyColorButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].BundleBodyColor = not PlayerData[SelectPlayer].BundleBodyColor
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local FaceConnect = GUIObject.FaceButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].Face = not PlayerData[SelectPlayer].Face
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local MeshSizeLockConnect = GUIObject.MeshSizeLockButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].MeshSizeLock = not PlayerData[SelectPlayer].MeshSizeLock
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local AccessorySizeLockConnect = GUIObject.AccessorySizeLockButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].AccessorySizeLock = not PlayerData[SelectPlayer].AccessorySizeLock
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local MeshBasePartInvisibleConnect = GUIObject.MeshBasePartInvisibleButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].MeshBasePartInvisible = not PlayerData[SelectPlayer].MeshBasePartInvisible
-			
+
 			Function.GUIUpdate()
 		end)
 
 		local BodyPartPhysicsConnect = GUIObject.BodyPartPhysicsButton.MouseButton1Click:Connect(function()
 			PlayerData[SelectPlayer].BodyPartPhysics = not PlayerData[SelectPlayer].BodyPartPhysics
-			
+
 			Function.GUIUpdate()
 		end)
 
@@ -7814,7 +7881,7 @@ function RoClothes(Player)
 			else
 				PlayerData[SelectPlayer].Tone = "Base"
 			end
-			
+
 			Function.GUIUpdate()
 		end)
 
@@ -7879,6 +7946,23 @@ function RoClothes(Player)
 			ClickExecute = not ClickExecute
 
 			Function.GUIUpdate()
+		end)
+
+		local MobileCloseConnect = GUIObject.MobileCloseButton.MouseButton1Click:Connect(function()
+			GUIObject.Screen.Enabled = not GUIObject.Screen.Enabled
+		end)
+
+		local SkinToneConnect = GUIObject.SkinToneText.FocusLost:Connect(function()
+			local Text = GUIObject.SkinToneText.Text
+
+			if Text == "" then
+				PlayerData[SelectPlayer].SkinTone = nil
+			else
+				local Color = Function.StringTo(Text, "RGB")
+
+				PlayerData[SelectPlayer].SkinTone = Color
+				GUIObject.SkinToneText.TextColor3 = Color
+			end
 		end)
 
 		local AccessoryConnect = GUIObject.AccessoryTextbox.FocusLost:Connect(function()
@@ -7979,9 +8063,13 @@ function RoClothes(Player)
 
 		for _, Button in pairs(GUIObject.CharacterFrame:GetChildren()) do
 			if Button:IsA("ImageButton") then
-				Button.MouseButton1Click:Connect(function()
+				local LocalTransparencyConnect = Button.MouseButton1Click:Connect(function()
 					PlayerData[SelectPlayer].LocalTransparency[Button.Name] = not PlayerData[SelectPlayer].LocalTransparency[Button.Name]
+
+					Function.GUIUpdate()
 				end)
+				
+				table.insert(AllConnect, LocalTransparencyConnect)
 			end
 		end
 
@@ -8005,6 +8093,7 @@ function RoClothes(Player)
 		table.insert(AllConnect, PositionPhysicsMultiplyConnect)
 		table.insert(AllConnect, RotationPhysicsMultiplyConnect)
 		table.insert(AllConnect, ClickExecuteConnect)
+		table.insert(AllConnect, MobileCloseConnect)
 	end
 
 	Function.UIStrokeCreate(GUIObject.PageFrame)
@@ -8041,6 +8130,7 @@ function RoClothes(Player)
 	Function.UIStrokeCreate(GUIObject.ClickExecuteFrame)
 	Function.UIStrokeCreate(GUIObject.PositionPhysicsMultiplyFrame)
 	Function.UIStrokeCreate(GUIObject.RotationPhysicsMultiplyFrame)
+	Function.UIStrokeCreate(GUIObject.SkinToneFrame)
 
 	--Properties:
 
@@ -8049,10 +8139,17 @@ function RoClothes(Player)
 	GUIObject.Screen.ResetOnSpawn = false
 	GUIObject.Screen.Enabled = true
 
+	GUIObject.MobileCloseButtonScreen.Name = "RoClothesCloseButton"
+	GUIObject.MobileCloseButtonScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	GUIObject.MobileCloseButtonScreen.ResetOnSpawn = false
+	GUIObject.MobileCloseButtonScreen.Enabled = false
+
 	if RS:IsClient() then
 		GUIObject.Screen.Parent = game:GetService("CoreGui")
+		GUIObject.MobileCloseButtonScreen.Parent = game:GetService("CoreGui")
 	else
 		GUIObject.Screen.Parent = Player:WaitForChild("PlayerGui")
+		GUIObject.MobileCloseButtonScreen.Parent = Player:WaitForChild("PlayerGui")
 	end
 
 	GUIObject.MainFrame.Name = "MainFrame"
@@ -9319,7 +9416,7 @@ function RoClothes(Player)
 	GUIObject.RotationPhysicsMultiplyText.BackgroundTransparency = 1.000
 	GUIObject.RotationPhysicsMultiplyText.Size = UDim2.new(1, 0, 1, 0)
 	GUIObject.RotationPhysicsMultiplyText.Font = Enum.Font.Code
-	GUIObject.RotationPhysicsMultiplyText.PlaceholderText = "Rotation  Physics Multiply"
+	GUIObject.RotationPhysicsMultiplyText.PlaceholderText = "Rotation Physics Multiply"
 	GUIObject.RotationPhysicsMultiplyText.Text = "4"
 	GUIObject.RotationPhysicsMultiplyText.TextColor3 = Color3.fromRGB(255, 255, 255)
 	GUIObject.RotationPhysicsMultiplyText.TextScaled = true
@@ -9329,6 +9426,48 @@ function RoClothes(Player)
 	GUIObject.UIGradientRPM.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 54, 45)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 100, 67))}
 	GUIObject.UIGradientRPM.Rotation = -90
 	GUIObject.UIGradientRPM.Parent = GUIObject.RotationPhysicsMultiplyFrame
+
+	GUIObject.MobileCloseButton.Name = "MobileCloseButton"
+	GUIObject.MobileCloseButton.Parent = GUIObject.MobileCloseButtonScreen
+	GUIObject.MobileCloseButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.MobileCloseButton.BackgroundTransparency = 1.000
+	GUIObject.MobileCloseButton.Position = UDim2.new(0.969957054, 0, 0.955650926, 0)
+	GUIObject.MobileCloseButton.Size = UDim2.new(0.0300429184, 0, 0.0443490706, 0)
+	GUIObject.MobileCloseButton.Image = "rbxassetid://264596039"
+
+	GUIObject.MCBUIAspectRatioConstraint.Parent = GUIObject.MobileCloseButton
+
+	GUIObject.SkinToneFrame.Name = "SkinToneFrame"
+	GUIObject.SkinToneFrame.Parent = GUIObject.Menu2
+	GUIObject.SkinToneFrame.AnchorPoint = Vector2.new(0.5, 0)
+	GUIObject.SkinToneFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.SkinToneFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	GUIObject.SkinToneFrame.Position = UDim2.new(0.5, 0, 0.88499999, 0)
+	GUIObject.SkinToneFrame.Size = UDim2.new(0.891309202, 0, 0.0646399707, 0)
+
+	GUIObject.STUICorner.CornerRadius = UDim.new(0.25, 0)
+	GUIObject.STUICorner.Parent = GUIObject.SkinToneFrame
+
+	GUIObject.SkinToneText.Name = "SkinToneText"
+	GUIObject.SkinToneText.Parent = GUIObject.SkinToneFrame
+	GUIObject.SkinToneText.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	GUIObject.SkinToneText.BackgroundTransparency = 1.000
+	GUIObject.SkinToneText.Size = UDim2.new(1, 0, 1, 0)
+	GUIObject.SkinToneText.Font = Enum.Font.Code
+	GUIObject.SkinToneText.PlaceholderText = "Skin Tone [RGB] (Leave Empty To Disable)"
+	GUIObject.SkinToneText.Text = ""
+	GUIObject.SkinToneText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	GUIObject.SkinToneText.TextScaled = true
+	GUIObject.SkinToneText.TextSize = 14.000
+	GUIObject.SkinToneText.TextWrapped = true
+
+	GUIObject.STUIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 54, 45)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 100, 67))}
+	GUIObject.STUIGradient.Rotation = -90
+	GUIObject.STUIGradient.Parent = GUIObject.SkinToneFrame
+
+	if not UIS.KeyboardEnabled then
+		GUIObject.MobileCloseButtonScreen.Enabled = true
+	end
 
 	Function.CatalogAccessoryFrameAdd(SelectPlayer)
 	Function.GUIFunc()
